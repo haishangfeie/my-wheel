@@ -52,38 +52,39 @@ class MyPromise {
     }
     setTimeout(run, 0)
   }
+
   then (onFulfilled, onRejected) {
-    return new MyPromise((onFulfilledNext, onRejectedNext) => {
+    const promise2 = new MyPromise((resolve, reject) => {
       const fulfilled = (val) => {
         if (!isFun(onFulfilled)) {
-          onFulfilledNext(val)
+          resolve(val)
         } else {
           try {
             const res = onFulfilled(val)
             if (res instanceof MyPromise) {
-              res.then(onFulfilledNext, onRejectedNext)
+              res.then(resolve, reject)
             } else {
-              onFulfilledNext(res)
+              resolve(res)
             }
           } catch (error) {
-            onRejected(error)
+            reject(error)
           }
         }
       }
       const rejected = (err) => {
         if (!isFun(onRejected)) {
-          onRejectedNext(err)
+          reject(err)
         } else {
           try {
             const res = onRejected(err)
 
             if (res instanceof MyPromise) {
-              res.then(onFulfilledNext, onRejectedNext)
+              res.then(resolve, reject)
             } else {
-              onRejectedNext(err)
+              resolve(res)
             }
           } catch (error) {
-            onRejectedNext(error)
+            reject(error)
           }
         }
       }
@@ -102,6 +103,71 @@ class MyPromise {
 
         default:
           break
+      }
+    })
+    return promise2
+  }
+
+  catch (onRejected) {
+    return this.then(void 0, onRejected)
+  }
+
+  finally (cb) {
+    return this.then(
+      value => MyPromise.resolve(cb()).then(() => value),
+      reason => MyPromise.resolve(cb()).then(() => { throw reason })
+    )
+  }
+
+  static resolve (value) {
+    if (value instanceof MyPromise) {
+      return value
+    }
+    return new MyPromise(resolve => {
+      resolve(value)
+    })
+  }
+
+  static reject (value) {
+    if (value instanceof MyPromise) {
+      return value
+    }
+    return new MyPromise((resolve, reject) => {
+      reject(value)
+    })
+  }
+
+  static all (promiseList) {
+    return new MyPromise((resolve, reject) => {
+      let count = 0
+      let values = []
+      for (let [index, promiseItem] of promiseList.entries()) {
+        this.resolve(promiseItem)
+          .then((res) => {
+            values[index] = res
+            count++
+
+            if (promiseList.length === count) {
+              resolve(values)
+            }
+          })
+          .catch(err => {
+            reject(err)
+          })
+      }
+    })
+  }
+
+  static race (promiseList) {
+    return new Promise((resolve, reject) => {
+      for (let promiseItem of promiseList) {
+        this.resolve(promiseItem)
+          .then(res => {
+            resolve(res)
+          })
+          .catch(err => {
+            reject(err)
+          })
       }
     })
   }
