@@ -47,7 +47,7 @@ export default class MyPromise {
 
       let cb
       while (cb = this._rejectedQueue.shift()) {
-        cb(val)
+        cb(err)
       }
     }
     setTimeout(run, 0)
