@@ -4,7 +4,7 @@ const PENDING = 'PENDING'
 const FULFILLED = 'FULFILLED'
 const REJECTED = 'REJECTED'
 
-class MyPromise {
+export default class MyPromise {
   constructor (handler) {
     if (!isFun(handler)) {
       throw new Error('创建MyPromise 实例必须提供handler函数')

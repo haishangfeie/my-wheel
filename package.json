@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watch",
+    "coverage": "jest --coverage "
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,12 @@
   },
   "homepage": "https://github.com/haishangfeie/my-wheel#readme",
   "devDependencies": {
+    "@babel/core": "^7.14.8",
+    "@babel/preset-env": "^7.14.9",
+    "babel-jest": "^27.0.6",
     "jest": "^27.0.6"
+  },
+  "dependencies": {
+    "axios": "^0.21.1"
   }
 }
